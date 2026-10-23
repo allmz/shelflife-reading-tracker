@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { shelfNames, useShelves } from '../context/ShelfContext.jsx';
-import { fetchWork, imageFor } from '../services/openLibrary.js';
+import { fetchWork, imageFor, toPlainText } from '../services/openLibrary.js';
 
 function BookDetails() {
   const { workId } = useParams();
@@ -35,10 +35,9 @@ function BookDetails() {
         const data = await fetchWork(workId);
         if (cancelled) return;
 
-        const text =
-          typeof data.description === 'string'
-            ? data.description
-            : data.description?.value;
+        // Open Library sends this as a string or as { value }, and it
+        // often has HTML in it. toPlainText handles both.
+        const text = toPlainText(data.description);
 
         setBook((current) => ({
           ...current,
