@@ -6,12 +6,17 @@ import { searchBooks } from '../services/openLibrary.js';
 function Home() {
   const [query, setQuery] = useState('javascript');
   const [field, setField] = useState('title');
+
+  // What we last actually searched for, as opposed to what is typed in
+  // the box. Submitting sets this, and the effect below watches it.
+  const [search, setSearch] = useState({ field: 'title', query: 'javascript' });
+
   const [books, setBooks] = useState([]);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
 
-  async function runSearch(event) {
-    event?.preventDefault();
+  function handleSubmit(event) {
+    event.preventDefault();
 
     const cleanQuery = query.trim();
     if (!cleanQuery) {
@@ -20,21 +25,37 @@ function Home() {
       return;
     }
 
-    setStatus('loading');
-    setError('');
-    try {
-      setBooks(await searchBooks(field, cleanQuery));
-      setStatus('success');
-    } catch (requestError) {
-      setStatus('error');
-      setError(requestError.message || 'Something went wrong while loading books.');
-    }
+    setSearch({ field, query: cleanQuery });
   }
 
-  // Run one search on first load so the page is not empty.
+  // The search itself lives in an effect so it can be cancelled. Every
+  // time `search` changes, React runs the cleanup from the previous one
+  // first, which aborts a request that is still in flight. Without this,
+  // responses can come back out of order and an older search can
+  // overwrite a newer one on screen.
   useEffect(() => {
-    runSearch();
-  }, []);
+    const controller = new AbortController();
+
+    async function run() {
+      setStatus('loading');
+      setError('');
+      try {
+        setBooks(await searchBooks(search.field, search.query, controller.signal));
+        setStatus('success');
+      } catch (requestError) {
+        // We aborted this one ourselves, so it is not a failure and the
+        // newer request is already on its way. Say nothing.
+        if (requestError.name === 'AbortError') return;
+
+        setStatus('error');
+        setError(requestError.message || 'Something went wrong while loading books.');
+      }
+    }
+
+    run();
+
+    return () => controller.abort();
+  }, [search]);
 
   return (
     <>
@@ -46,7 +67,7 @@ function Home() {
           your reading life in one simple place.
         </p>
 
-        <form className="search-bar" onSubmit={runSearch}>
+        <form className="search-bar" onSubmit={handleSubmit}>
           <label className="sr-only" htmlFor="search">Search Open Library</label>
           <span className="search-icon">⌕</span>
           <input
@@ -71,7 +92,9 @@ function Home() {
       <section className="section-heading">
         <div>
           <div className="eyebrow">Open Library results</div>
-          <h2>{status === 'success' ? `Books about ${query}` : 'Start exploring'}</h2>
+          {/* search.query, not query: the heading should name what is
+              actually on screen, not what is half typed in the box. */}
+          <h2>{status === 'success' ? `Books about ${search.query}` : 'Start exploring'}</h2>
         </div>
         <span className="result-count">{books.length} results</span>
       </section>

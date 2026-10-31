@@ -27,13 +27,14 @@ function BookDetails() {
   const [description, setDescription] = useState(passedBook?.description || '');
 
   useEffect(() => {
-    // If the user navigates away mid-request, do not set state afterwards.
-    let cancelled = false;
+    // If the user opens another book or navigates away, the cleanup
+    // aborts this request rather than letting it finish and write its
+    // answer over the page they are now looking at.
+    const controller = new AbortController();
 
     async function loadDetails() {
       try {
-        const data = await fetchWork(workId);
-        if (cancelled) return;
+        const data = await fetchWork(workId, controller.signal);
 
         // Open Library sends this as a string or as { value }, and it
         // often has HTML in it. toPlainText handles both.
@@ -53,15 +54,17 @@ function BookDetails() {
             'This book does not have a description in Open Library yet.',
         );
         setStatus('success');
-      } catch {
-        if (!cancelled) setStatus('error');
+      } catch (requestError) {
+        // We aborted it ourselves, so there is nothing to report.
+        if (requestError.name === 'AbortError') return;
+
+        setStatus('error');
       }
     }
 
     loadDetails();
-    return () => {
-      cancelled = true;
-    };
+
+    return () => controller.abort();
   }, [workId]);
 
   const currentShelf = shelfNames.find((name) =>
