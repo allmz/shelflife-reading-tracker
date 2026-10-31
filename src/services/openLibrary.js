@@ -55,20 +55,40 @@ export function imageFor(book, size = 'M') {
     : 'https://placehold.co/240x360/eadfcf/4d4037?text=No+cover';
 }
 
-// signal comes from an AbortController in the caller's effect, so a
-// request can be called off when the user searches again or leaves.
-export async function searchBooks(field, query, signal) {
-  const response = await fetch(
-    `${API_BASE}/search.json?${field}=${encodeURIComponent(query)}&limit=12`,
-    { signal },
-  );
-  if (!response.ok) throw new Error('The Open Library request failed.');
-  const data = await response.json();
-  return data.docs.map(normalizeBook);
+async function getJson(url, signal, errorMessage) {
+  try {
+    const response = await fetch(url, { signal });
+
+    if (!response.ok) {
+      throw new Error(`${errorMessage} (status ${response.status}).`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+
+    if (error instanceof TypeError) {
+      throw new Error('Could not connect to Open Library. Check your internet connection and try again.');
+    }
+
+    throw error;
+  }
 }
 
-export async function fetchWork(workId, signal) {
-  const response = await fetch(`${API_BASE}/works/${workId}.json`, { signal });
-  if (!response.ok) throw new Error('Book details are not available right now.');
-  return response.json();
+export async function searchBooks(field, query, signal) {
+  const data = await getJson(
+    `${API_BASE}/search.json?${field}=${encodeURIComponent(query)}&limit=12`,
+    signal,
+    'Open Library could not complete the search',
+  );
+
+  return Array.isArray(data.docs) ? data.docs.map(normalizeBook) : [];
+}
+
+export function fetchWork(workId, signal) {
+  return getJson(
+    `${API_BASE}/works/${workId}.json`,
+    signal,
+    'Open Library could not load these book details',
+  );
 }
