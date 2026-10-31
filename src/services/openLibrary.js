@@ -55,17 +55,20 @@ export function imageFor(book, size = 'M') {
     : 'https://placehold.co/240x360/eadfcf/4d4037?text=No+cover';
 }
 
-export async function searchBooks(field, query) {
+// signal comes from an AbortController in the caller's effect, so a
+// request can be called off when the user searches again or leaves.
+export async function searchBooks(field, query, signal) {
   const response = await fetch(
     `${API_BASE}/search.json?${field}=${encodeURIComponent(query)}&limit=12`,
+    { signal },
   );
   if (!response.ok) throw new Error('The Open Library request failed.');
   const data = await response.json();
   return data.docs.map(normalizeBook);
 }
 
-export async function fetchWork(workId) {
-  const response = await fetch(`${API_BASE}/works/${workId}.json`);
+export async function fetchWork(workId, signal) {
+  const response = await fetch(`${API_BASE}/works/${workId}.json`, { signal });
   if (!response.ok) throw new Error('Book details are not available right now.');
   return response.json();
 }
