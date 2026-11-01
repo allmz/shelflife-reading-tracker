@@ -23,7 +23,8 @@ function BookDetails() {
       subjects: [],
     },
   );
-  const [status, setStatus] = useState('loading');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
   const [description, setDescription] = useState(passedBook?.description || '');
 
   useEffect(() => {
@@ -33,6 +34,9 @@ function BookDetails() {
     const controller = new AbortController();
 
     async function loadDetails() {
+      setIsLoading(true);
+      setError('');
+
       try {
         const data = await fetchWork(workId, controller.signal);
 
@@ -53,12 +57,18 @@ function BookDetails() {
             passedBook?.description ||
             'This book does not have a description in Open Library yet.',
         );
-        setStatus('success');
       } catch (requestError) {
         // We aborted it ourselves, so there is nothing to report.
         if (requestError.name === 'AbortError') return;
 
-        setStatus('error');
+        setError(requestError.message);
+        // Arriving by a typed URL leaves nothing to fall back on, so the
+        // placeholder title would otherwise say "Loading book…" forever.
+        if (!passedBook) {
+          setBook((current) => ({ ...current, title: 'Book unavailable' }));
+        }
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
@@ -97,12 +107,14 @@ function BookDetails() {
           <div className="detail-meta">
             <span>{book.year}</span>
             <span>{book.subjects?.length || 0} subjects</span>
-            <span>{status === 'success' ? 'Open Library' : 'Loading details'}</span>
+            <span>{isLoading ? 'Loading details' : 'Open Library'}</span>
           </div>
 
           <p className="description">
-            {status === 'error'
-              ? 'The basic book information loaded, but the full description could not be reached.'
+            {error
+              ? passedBook
+                ? `The basic book information loaded, but the full description could not be reached. ${error}`
+                : error
               : description}
           </p>
 
