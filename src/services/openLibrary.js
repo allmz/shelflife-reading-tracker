@@ -75,14 +75,21 @@ async function getJson(url, signal, errorMessage) {
   }
 }
 
-export async function searchBooks(field, query, signal) {
+// Use the Open Library search API to find books by title, author, or subject. The API supports an offset parameter.
+// It tells the API where to start retrieving results.
+export async function searchBooks(field, query, signal, offset = 0) {
   const data = await getJson(
-    `${API_BASE}/search.json?${field}=${encodeURIComponent(query)}&limit=12`,
+    `${API_BASE}/search.json?${field}=${encodeURIComponent(query)}&limit=12&offset=${offset}`,
     signal,
     'Open Library could not complete the search',
   );
 
-  return Array.isArray(data.docs) ? data.docs.map(normalizeBook) : [];
+  // Return an array of normalized books and the total number of matching books found. The API returns a "docs"
+  //  array with the search results and a "numFound" property with the total number of results.
+  return {
+    books: Array.isArray(data.docs) ? data.docs.map(normalizeBook) : [],
+    total: data.numFound ?? 0,
+  };
 }
 
 export function fetchWork(workId, signal) {
