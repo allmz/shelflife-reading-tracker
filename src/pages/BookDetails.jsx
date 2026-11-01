@@ -83,7 +83,7 @@ function BookDetails() {
 
   return (
     <section className="details-layout">
-      <button className="back-link" onClick={() => navigate(-1)}>
+      <button className="back-link" onClick={() => navigate(location.state?.returnTo || '/')}>
         ← Back to results
       </button>
 
