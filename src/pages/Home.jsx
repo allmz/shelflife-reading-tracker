@@ -1,13 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import BookGrid from '../components/BookGrid.jsx';
 import StateMessage from '../components/StateMessage.jsx';
 import { searchBooks } from '../services/openLibrary.js';
 
 function Home() {
-  const [query, setQuery] = useState('javascript');
-  const [field, setField] = useState('title');
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [search, setSearch] = useState({ field: 'title', query: 'javascript' });
+  const initialQuery = searchParams.get('query')?.trim() || 'javascript';
+  const requestedField = searchParams.get('field');
+  const initialField = ['title', 'author', 'subject'].includes(requestedField)
+    ? requestedField
+    : 'title';
+
+  const [query, setQuery] = useState(initialQuery);
+  const [field, setField] = useState(initialField);
+
+  const [search, setSearch] = useState({
+    field: initialField,
+    query: initialQuery,
+  });
 
   const [books, setBooks] = useState([]);
   const [total, setTotal] = useState(0);
@@ -20,6 +32,22 @@ function Home() {
 
   const loadMoreController = useRef(null);
 
+  useEffect(() => {
+    const urlQuery = searchParams.get('query')?.trim() || 'javascript';
+    const requestedField = searchParams.get('field');
+    const urlField = ['title', 'author', 'subject'].includes(requestedField)
+      ? requestedField
+      : 'title';
+
+    setSearch((current) => {
+      if (current.field === urlField && current.query === urlQuery) {
+        return current;
+      }
+
+      return { field: urlField, query: urlQuery };
+    });
+  }, [searchParams]);
+
   function handleSubmit(event) {
     event.preventDefault();
 
@@ -30,7 +58,7 @@ function Home() {
       return;
     }
 
-    setSearch({ field, query: cleanQuery });
+    setSearchParams({ field, query: cleanQuery });
   }
 
   useEffect(() => {
