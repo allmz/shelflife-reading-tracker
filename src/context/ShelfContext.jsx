@@ -8,29 +8,8 @@ export const shelfNames = ['Want to Read', 'Reading', 'Finished'];
 const STORAGE_KEY = 'shelflife-shelves-v2';
 const ShelfContext = createContext(null);
 
-const starterBooks = [
-  {
-    id: 'OL20915214W',
-    title: 'Learning React',
-    authors: ['Alex Banks', 'Eve Porcello'],
-    year: 2018,
-    coverId: 10282783,
-    subjects: ['React', 'JavaScript', 'Web development'],
-    description: 'A practical guide to building user interfaces with React and modern JavaScript.',
-  },
-  {
-    id: 'OL19545984W',
-    title: 'React and React Native',
-    authors: ['Adam Boduch'],
-    year: 2017,
-    coverId: 8512119,
-    subjects: ['React', 'React Native', 'Mobile applications'],
-    description: 'A guide to creating reusable web and mobile interfaces with React and React Native.',
-  },
-];
-
 function emptyShelves() {
-  return { 'Want to Read': starterBooks, Reading: [], Finished: [] };
+  return { 'Want to Read': [], Reading: [], Finished: [] };
 }
 
 function readShelves() {

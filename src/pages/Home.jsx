@@ -13,6 +13,7 @@ function Home() {
 
   const [books, setBooks] = useState([]);
   const [status, setStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   function handleSubmit(event) {
@@ -37,7 +38,7 @@ function Home() {
     const controller = new AbortController();
 
     async function run() {
-      setStatus('loading');
+      setIsLoading(true);
       setError('');
       try {
         setBooks(await searchBooks(search.field, search.query, controller.signal));
@@ -49,6 +50,10 @@ function Home() {
 
         setStatus('error');
         setError(requestError.message || 'Something went wrong while loading books.');
+      } finally {
+        // An aborted request leaves loading on, because the newer request
+        // that replaced it is still running.
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
@@ -56,6 +61,8 @@ function Home() {
 
     return () => controller.abort();
   }, [search]);
+
+  const showResults = !isLoading && status === 'success';
 
   return (
     <>
@@ -94,19 +101,25 @@ function Home() {
           <div className="eyebrow">Open Library results</div>
           {/* search.query, not query: the heading should name what is
               actually on screen, not what is half typed in the box. */}
-          <h2>{status === 'success' ? `Books about ${search.query}` : 'Start exploring'}</h2>
+          <h2>
+            {isLoading
+              ? 'Searching…'
+              : showResults
+                ? `Books about ${search.query}`
+                : 'Start exploring'}
+          </h2>
         </div>
-        <span className="result-count">{books.length} results</span>
+        {showResults && <span className="result-count">{books.length} results</span>}
       </section>
 
-      {status === 'loading' && (
+      {isLoading && (
         <StateMessage
           title="Looking through the shelves…"
           text="We are getting the latest results from Open Library."
         />
       )}
 
-      {status === 'error' && (
+      {!isLoading && status === 'error' && (
         <StateMessage
           title="We could not load those books"
           text={error}
@@ -114,14 +127,14 @@ function Home() {
         />
       )}
 
-      {status === 'success' && books.length === 0 && (
+      {showResults && books.length === 0 && (
         <StateMessage
           title="No books found"
           text="Try a wider title, author, or subject search."
         />
       )}
 
-      {status === 'success' && books.length > 0 && <BookGrid books={books} />}
+      {showResults && books.length > 0 && <BookGrid books={books} />}
     </>
   );
 }
