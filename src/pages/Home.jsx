@@ -178,7 +178,7 @@ function Home() {
         </form>
       </section>
 
-            <section className="section-heading">
+      <section className="section-heading">
         <div>
           <div className="eyebrow">Open Library results</div>
           <h2>
@@ -220,30 +220,30 @@ function Home() {
       )}
 
       {showResults && books.length > 0 && (
-      <>
-        <BookGrid books={books} />
+        <>
+          <BookGrid books={books} />
 
-        {loadMoreError && (
-          <StateMessage
-            title="Could not load more books"
-            text={loadMoreError}
-            tone="error"
-          />
-        )}
+          {loadMoreError && (
+            <StateMessage
+              title="Could not load more books"
+              text={loadMoreError}
+              tone="error"
+            />
+          )}
 
-        {books.length < total && (
-          <div className="load-more-container">
-            <button
-              className="primary-button"
-              type="button"
-              onClick={loadMoreBooks}
-              disabled={loadingMore}
-            >
-              {loadingMore ? 'Loading…' : 'Load More Books'}
-            </button>
-          </div>
-        )}
-      </>
+          {books.length < total && (
+            <div className="load-more-container">
+              <button
+                className="primary-button"
+                type="button"
+                onClick={loadMoreBooks}
+                disabled={loadingMore}
+              >
+                {loadingMore ? 'Loading…' : 'Load More Books'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </>
   );
