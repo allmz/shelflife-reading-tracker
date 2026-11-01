@@ -12,6 +12,7 @@ function Home() {
   const [books, setBooks] = useState([]);
   const [total, setTotal] = useState(0);
   const [status, setStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [loadingMore, setLoadingMore] = useState(false);
@@ -41,7 +42,7 @@ function Home() {
     setLoadMoreError('');
 
     async function run() {
-      setStatus('loading');
+      setIsLoading(true);
       setError('');
       setBooks([]);
       setTotal(0);
@@ -61,6 +62,10 @@ function Home() {
 
         setStatus('error');
         setError(requestError.message || 'Something went wrong while loading books.');
+      } finally {
+        // An aborted request leaves loading on, because the newer request
+        // that replaced it is still running.
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
@@ -71,6 +76,8 @@ function Home() {
       loadMoreController.current?.abort();
     };
   }, [search]);
+
+  const showResults = !isLoading && status === 'success';
 
   async function loadMoreBooks() {
     if (loadingMore || books.length >= total) return;
@@ -137,26 +144,33 @@ function Home() {
         </form>
       </section>
 
-      <section className="section-heading">
+            <section className="section-heading">
         <div>
           <div className="eyebrow">Open Library results</div>
-          <h2>{status === 'success' ? `Books about ${search.query}` : 'Start exploring'}</h2>
+          <h2>
+            {isLoading
+              ? 'Searching…'
+              : showResults
+                ? `Books about ${search.query}`
+                : 'Start exploring'}
+          </h2>
         </div>
-        {status === 'success' && (
+
+        {showResults && (
           <span className="result-count">
             {books.length} of {total} results
           </span>
         )}
       </section>
 
-      {status === 'loading' && (
+      {isLoading && (
         <StateMessage
           title="Looking through the shelves…"
           text="We are getting the latest results from Open Library."
         />
       )}
 
-      {status === 'error' && (
+      {!isLoading && status === 'error' && (
         <StateMessage
           title="We could not load those books"
           text={error}
@@ -164,38 +178,38 @@ function Home() {
         />
       )}
 
-      {status === 'success' && books.length === 0 && (
+      {showResults && books.length === 0 && (
         <StateMessage
           title="No books found"
           text="Try a wider title, author, or subject search."
         />
       )}
 
-      {status === 'success' && books.length > 0 && (
-        <>
-          <BookGrid books={books} />
+      {showResults && books.length > 0 && (
+      <>
+        <BookGrid books={books} />
 
-          {loadMoreError && (
-            <StateMessage
-              title="Could not load more books"
-              text={loadMoreError}
-              tone="error"
-            />
-          )}
+        {loadMoreError && (
+          <StateMessage
+            title="Could not load more books"
+            text={loadMoreError}
+            tone="error"
+          />
+        )}
 
-          {books.length < total && (
-            <div className="load-more-container">
-              <button
-                className="primary-button"
-                type="button"
-                onClick={loadMoreBooks}
-                disabled={loadingMore}
-              >
-                {loadingMore ? 'Loading…' : 'Load More Books'}
-              </button>
-            </div>
-          )}
-        </>
+        {books.length < total && (
+          <div className="load-more-container">
+            <button
+              className="primary-button"
+              type="button"
+              onClick={loadMoreBooks}
+              disabled={loadingMore}
+            >
+              {loadingMore ? 'Loading…' : 'Load More Books'}
+            </button>
+          </div>
+        )}
+      </>
       )}
     </>
   );
