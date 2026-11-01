@@ -59,6 +59,12 @@ function Home() {
     }
 
     setSearchParams({ field, query: cleanQuery });
+
+    // Searching for the same term again has to run the request again.
+    // The query string does not change, so the effect that watches it
+    // would not fire, and after a failed request the user would be left
+    // looking at the error until they typed something different.
+    setSearch({ field, query: cleanQuery });
   }
 
   useEffect(() => {
