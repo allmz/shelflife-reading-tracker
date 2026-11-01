@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { shelfNames, useShelves } from '../context/ShelfContext.jsx';
 import { imageFor } from '../services/openLibrary.js';
 
@@ -12,9 +12,12 @@ function BookCard({ book }) {
     shelves[name].some((item) => item.id === book.id),
   );
 
+  const location = useLocation();
+  const returnTo = location.pathname + location.search;
+
   return (
     <article className="book-card">
-      <Link to={`/book/${book.id}`} state={{ book }} className="cover-link">
+      <Link to={`/book/${book.id}`} state={{ book, returnTo }} className="cover-link">
         <img
           className="book-cover"
           src={imageFor(book)}
@@ -25,7 +28,7 @@ function BookCard({ book }) {
       <div className="book-card-body">
         <div className="book-year">{book.year}</div>
 
-        <Link to={`/book/${book.id}`} state={{ book }}>
+        <Link to={`/book/${book.id}`} state={{ book, returnTo }}>
           <h3>{book.title}</h3>
         </Link>
 
