@@ -14,6 +14,7 @@ function Header() {
 
       <nav className="nav-links" aria-label="Main navigation">
         <NavLink to="/" end>Discover</NavLink>
+        <NavLink to="/add">Add a book</NavLink>
         <NavLink to="/shelves">My shelves</NavLink>
         <NavLink to="/stats">Stats</NavLink>
       </nav>

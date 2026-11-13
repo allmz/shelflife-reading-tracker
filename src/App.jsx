@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import { ShelfProvider } from './context/ShelfContext.jsx';
+import AddBook from './pages/AddBook.jsx';
 import BookDetails from './pages/BookDetails.jsx';
 import Home from './pages/Home.jsx';
 import Shelves from './pages/Shelves.jsx';
@@ -17,6 +18,7 @@ function App() {
         <main className="page-wrap">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/add" element={<AddBook />} />
             <Route path="/shelves" element={<Shelves />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/book/:workId" element={<BookDetails />} />
