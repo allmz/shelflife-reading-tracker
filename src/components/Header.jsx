@@ -8,7 +8,7 @@ function Header() {
   return (
     <header className="topbar">
       <Link className="brand" to="/">
-        <span className="brand-mark">S</span>
+        <img src="/logo.svg" alt="ShelfLife" className="brand-mark" />
         <span>ShelfLife</span>
       </Link>
 
