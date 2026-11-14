@@ -42,7 +42,9 @@ function validate(values, allBooks) {
   const author = values.author.trim();
   if (!author) {
     errors.author = 'Enter the author. Put Unknown if you are not sure.';
-  } else if (author.length > 80) {
+  } else if (!/^[a-zA-Z\s.'-]+$/.test(author)) {
+    errors.author = 'Use letters only for the author name.';} 
+    else if (author.length > 80) {
     errors.author = 'Keep the author under 80 characters.';
   }
 
