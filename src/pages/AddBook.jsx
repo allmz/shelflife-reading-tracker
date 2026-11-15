@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { shelfNames, useShelves } from '../context/ShelfContext.jsx';
 import StateMessage from '../components/StateMessage.jsx';
 
@@ -179,6 +180,23 @@ function AddBook() {
         </p>
       </div>
 
+      {/* Above the form rather than below it: saving moves focus back to
+          Title, so this is where the reader is looking, even on a phone. */}
+      {saved && (
+        <div className="form-status">
+          <StateMessage
+            role="status"
+            title={`${saved.title} is on your ${saved.shelf} shelf`}
+            text={
+              <>
+                <Link className="inline-link" to="/shelves">Open My shelves</Link> to
+                see it, or add another book below.
+              </>
+            }
+          />
+        </div>
+      )}
+
       <form className="form-card" onSubmit={handleSubmit} noValidate>
         {field('title', 'Title', null, (invalid) => (
           <input
@@ -249,13 +267,6 @@ function AddBook() {
           </span>
         </div>
       </form>
-
-      {saved && (
-        <StateMessage
-          title={`${saved.title} is on your ${saved.shelf} shelf`}
-          text="Open My shelves to see it, or add another one below."
-        />
-      )}
     </section>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import BookGrid from '../components/BookGrid.jsx';
 import StateMessage from '../components/StateMessage.jsx';
 import { shelfNames, useShelves } from '../context/ShelfContext.jsx';
@@ -24,6 +25,8 @@ function Shelves() {
         {shelfNames.map((name) => (
           <button
             key={name}
+            role="tab"
+            aria-selected={activeShelf === name}
             className={activeShelf === name ? 'active' : ''}
             onClick={() => setActiveShelf(name)}
           >
@@ -35,8 +38,14 @@ function Shelves() {
 
       {books.length === 0 ? (
         <StateMessage
-          title="This shelf is empty"
-          text="Search for a book and add it here when you are ready."
+          title={`Nothing on ${activeShelf} yet`}
+          text={
+            <>
+              <Link className="inline-link" to="/">Search Open Library</Link> or{' '}
+              <Link className="inline-link" to="/add">add a book by hand</Link> to fill
+              this shelf.
+            </>
+          }
         />
       ) : (
         <BookGrid books={books} />
