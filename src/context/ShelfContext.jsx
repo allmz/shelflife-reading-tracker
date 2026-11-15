@@ -12,14 +12,26 @@ function emptyShelves() {
   return { 'Want to Read': [], Reading: [], Finished: [] };
 }
 
+function isBook(book) {
+  return Boolean(book) && typeof book.id === 'string'
+    && typeof book.title === 'string' && Array.isArray(book.authors);
+}
+
+// Read once, when the provider first renders. Anything missing or broken
+// falls back to an empty shelf, and one damaged entry is dropped on its
+// own instead of costing the reader every other book they saved.
 function readShelves() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    const valid = saved && typeof saved === 'object' && !Array.isArray(saved)
-      && shelfNames.every((name) => Array.isArray(saved[name])
-        && saved[name].every((book) => book && typeof book.id === 'string'
-          && typeof book.title === 'string' && Array.isArray(book.authors)));
-    return valid ? saved : emptyShelves();
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) {
+      return emptyShelves();
+    }
+
+    const shelves = emptyShelves();
+    for (const name of shelfNames) {
+      if (Array.isArray(saved[name])) shelves[name] = saved[name].filter(isBook);
+    }
+    return shelves;
   } catch {
     return emptyShelves();
   }
@@ -75,5 +87,7 @@ export function ShelfProvider({ children }) {
 }
 
 export function useShelves() {
-  return useContext(ShelfContext);
+  const context = useContext(ShelfContext);
+  if (!context) throw new Error('useShelves must be used inside ShelfProvider');
+  return context;
 }

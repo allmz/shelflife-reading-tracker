@@ -21,8 +21,9 @@ function slug(text) {
 
 // A book added by hand gets an id built from its own title and year, so
 // adding the same book twice produces the same id and can be spotted.
+// Number() drops leading zeros, so 1999 and 01999 are the same book.
 function idFor(title, year) {
-  return `manual-${slug(title)}-${year}`;
+  return `manual-${slug(title)}-${Number(year)}`;
 }
 
 // One set of rules, used both to decide what to show the reader and to
@@ -38,6 +39,8 @@ function validate(values, allBooks) {
     errors.title = 'The title needs at least two characters.';
   } else if (title.length > 120) {
     errors.title = 'Keep the title under 120 characters.';
+  } else if (!/[\p{L}\p{N}]/u.test(title)) {
+    errors.title = 'Include at least one letter or number in the title.';
   }
 
   const author = values.author.trim();
@@ -53,7 +56,7 @@ function validate(values, allBooks) {
   if (!year) {
     errors.year = 'Enter the year it was published.';
   } else if (!/^\d+$/.test(year)) {
-    errors.year = 'Use digits only, for example 1999.';
+    errors.year = 'Use digits only for the year, for example 1999.';
   } else if (Number(year) < EARLIEST_YEAR || Number(year) > THIS_YEAR) {
     errors.year = `Use a year between ${EARLIEST_YEAR} and ${THIS_YEAR}.`;
   }
@@ -61,7 +64,7 @@ function validate(values, allBooks) {
   if (!values.shelf) {
     errors.shelf = 'Pick the shelf this book belongs on.';
   } else if (!shelfNames.includes(values.shelf)) {
-    errors.shelf = 'Pick one of the three shelves.';
+    errors.shelf = 'Pick Want to Read, Reading or Finished for the shelf.';
   }
 
   // Only worth checking for a duplicate once the title and year are
@@ -69,7 +72,7 @@ function validate(values, allBooks) {
   if (!errors.title && !errors.year) {
     const id = idFor(title, year);
     if (allBooks.some((book) => book.id === id)) {
-      errors.title = 'That book is already saved on one of your shelves.';
+      errors.title = 'This title and year are already on your shelves. Change the title or year, or find the book in My shelves.';
     }
   }
 
