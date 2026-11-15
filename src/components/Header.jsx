@@ -1,9 +1,11 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useShelves } from '../context/ShelfContext.jsx';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 // Rendered once in App, so it appears on every page.
 function Header() {
   const { allBooks } = useShelves();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="topbar">
@@ -19,7 +21,17 @@ function Header() {
         <NavLink to="/stats">Stats</NavLink>
       </nav>
 
-      <div className="reading-pill">{allBooks.length} saved</div>
+      <div className="header-actions">
+        <span className="reading-pill">{allBooks.length} saved</span>
+        <button
+          className="theme-toggle"
+          type="button"
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? 'Dark mode' : 'Light mode'}
+        </button>
+      </div>
     </header>
   );
 }

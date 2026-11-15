@@ -13,6 +13,24 @@ npm run dev
 
 The application uses React Router for navigation, Context for shared shelf state, async/await for API requests, and responsive CSS for laptop and phone layouts. The `public/api-evidence.html` page is a static frontend evidence page for the Open Library request.
 
+## Adding books and changing the theme
+
+Use **Add a book** when a title is missing from Open Library. The form checks each field before saving. A saved book appears on the chosen shelf and in Stats. The light/dark button in the header changes the colours on every page. Both the shelves and theme are saved in this browser and restored when the page reloads. Data saved in one browser does not appear in another browser.
+
+## Phase 4 evidence
+
+These screenshots were taken in a separate browser profile, so the example book did not change anyone's own shelves.
+
+| Screenshot | How to reproduce it |
+| --- | --- |
+| [Form errors](docs/phase4-form-errors.png) | Open Add a book. Enter a one-letter title, a number in the author name, and a year outside the shown range. Leave Shelf unselected and press Add to shelf. Nothing is saved. |
+| [Successful save](docs/phase4-form-saved.png) | Correct the four fields and press Add to shelf. The page confirms which shelf received the book. |
+| [Shelves after reload](docs/phase4-shelves-reloaded.png) | Open My shelves, reload, and select Reading again. The saved book and shelf count are still there. |
+| [Dark mode after reload](docs/phase4-dark-reloaded.png) | Switch to dark mode, open a saved book, and reload. The page stays dark. |
+| [Phone layout](docs/phase4-mobile-dark.png) | Open Add a book with a 390 px wide viewport while dark mode is on. The navigation and form fit the screen. |
+
+The example book is **The City and the City** by China Miéville (2009). Open Library records use their API cover when one is available; other books use the local ShelfLife cover graphic.
+
 ## Loading, error and empty states
 
 Every Open Library request goes through `getJson` in `src/services/openLibrary.js`, which uses `async`/`await` inside `try`/`catch`, checks `response.ok` so a non-2xx answer counts as a failure, and turns a network failure into a readable message. The pages turn their loading flag off in a `finally` block, and a newer search aborts the one still in flight with an `AbortController`, so an older response can never replace newer results.

@@ -15,7 +15,11 @@ function emptyShelves() {
 function readShelves() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return saved && typeof saved === 'object' ? saved : emptyShelves();
+    const valid = saved && typeof saved === 'object' && !Array.isArray(saved)
+      && shelfNames.every((name) => Array.isArray(saved[name])
+        && saved[name].every((book) => book && typeof book.id === 'string'
+          && typeof book.title === 'string' && Array.isArray(book.authors)));
+    return valid ? saved : emptyShelves();
   } catch {
     return emptyShelves();
   }
@@ -26,7 +30,11 @@ export function ShelfProvider({ children }) {
 
   // Save to localStorage whenever the shelves change.
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(shelves));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(shelves));
+    } catch {
+      // The shelves still work for this visit if storage is unavailable.
+    }
   }, [shelves]);
 
   // A book belongs to one shelf at a time: remove it from all three,

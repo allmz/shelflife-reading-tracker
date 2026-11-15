@@ -8,10 +8,15 @@ function BookDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const { shelves, moveBook } = useShelves();
+  const isManual = workId.startsWith('manual-');
 
   // If the user arrived by clicking a card, the book came with them and
   // we can show it immediately while the full record loads.
-  const passedBook = location.state?.book;
+  const savedBook = isManual
+    ? shelfNames.flatMap((name) => shelves[name]).find((item) => item.id === workId)
+    : null;
+  const passedBook = location.state?.book || savedBook;
+  const returnTo = location.state?.returnTo || (isManual ? '/shelves' : '/');
 
   const [book, setBook] = useState(
     passedBook || {
@@ -28,6 +33,20 @@ function BookDetails() {
   const [description, setDescription] = useState(passedBook?.description || '');
 
   useEffect(() => {
+    if (isManual) {
+      setBook(passedBook || {
+        id: workId,
+        title: 'Book unavailable',
+        authors: [],
+        year: '—',
+        coverId: null,
+        subjects: [],
+      });
+      setDescription(passedBook?.description || 'This book is no longer on your shelves.');
+      setIsLoading(false);
+      return;
+    }
+
     // If the user opens another book or navigates away, the cleanup
     // aborts this request rather than letting it finish and write its
     // answer over the page they are now looking at.
@@ -75,7 +94,7 @@ function BookDetails() {
     loadDetails();
 
     return () => controller.abort();
-  }, [workId]);
+  }, [workId, isManual]);
 
   const currentShelf = shelfNames.find((name) =>
     shelves[name].some((item) => item.id === book.id),
@@ -83,8 +102,8 @@ function BookDetails() {
 
   return (
     <section className="details-layout">
-      <button className="back-link" onClick={() => navigate(location.state?.returnTo || '/')}>
-        ← Back to results
+      <button className="back-link" onClick={() => navigate(returnTo)}>
+        ← Back to {returnTo.startsWith('/shelves') ? 'shelves' : 'results'}
       </button>
 
       <div className="details-card">
@@ -107,7 +126,7 @@ function BookDetails() {
           <div className="detail-meta">
             <span>{book.year}</span>
             <span>{book.subjects?.length || 0} subjects</span>
-            <span>{isLoading ? 'Loading details' : 'Open Library'}</span>
+            <span>{isManual ? 'Added by hand' : isLoading ? 'Loading details' : 'Open Library'}</span>
           </div>
 
           <p className="description">
@@ -118,20 +137,22 @@ function BookDetails() {
               : description}
           </p>
 
-          <div className="shelf-picker">
-            <span>My shelf</span>
-            <div>
-              {shelfNames.map((name) => (
-                <button
-                  key={name}
-                  className={currentShelf === name ? 'selected' : ''}
-                  onClick={() => moveBook(book, name)}
-                >
-                  {name}
-                </button>
-              ))}
+          {(!isManual || passedBook) && (
+            <div className="shelf-picker">
+              <span>My shelf</span>
+              <div>
+                {shelfNames.map((name) => (
+                  <button
+                    key={name}
+                    className={currentShelf === name ? 'selected' : ''}
+                    onClick={() => moveBook(book, name)}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
