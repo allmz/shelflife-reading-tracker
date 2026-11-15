@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import AddBook from './pages/AddBook.jsx';
 import BookDetails from './pages/BookDetails.jsx';
 import Home from './pages/Home.jsx';
+import NotFound from './pages/NotFound.jsx';
 import Shelves from './pages/Shelves.jsx';
 import Stats from './pages/Stats.jsx';
 
@@ -24,6 +25,7 @@ function App() {
               <Route path="/shelves" element={<Shelves />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/book/:workId" element={<BookDetails />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
 

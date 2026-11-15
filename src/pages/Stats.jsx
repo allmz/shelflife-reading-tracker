@@ -30,7 +30,7 @@ function Stats() {
           <div className="stat-card" key={name}>
             <span>{name}</span>
             <strong>{shelves[name].length}</strong>
-            <small>books</small>
+            <small>{shelves[name].length === 1 ? 'book' : 'books'}</small>
           </div>
         ))}
       </div>
@@ -41,7 +41,9 @@ function Stats() {
             <div className="eyebrow">Publication years</div>
             <h2>Books by decade</h2>
           </div>
-          <span className="muted">{allBooks.length} total books</span>
+          <span className="muted">
+            {allBooks.length} {allBooks.length === 1 ? 'book' : 'books'} in total
+          </span>
         </div>
 
         {Object.keys(decades).length === 0 ? (

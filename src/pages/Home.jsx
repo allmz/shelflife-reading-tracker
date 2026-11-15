@@ -53,8 +53,7 @@ function Home() {
 
     const cleanQuery = query.trim();
     if (!cleanQuery) {
-      setStatus('error');
-      setError('Please enter a title, author, or subject to search.');
+      setStatus('invalid');
       return;
     }
 
@@ -204,6 +203,13 @@ function Home() {
         />
       )}
 
+      {!isLoading && status === 'invalid' && (
+        <StateMessage
+          title="Type something to search for"
+          text="Enter a title, author, or subject, then press Search."
+        />
+      )}
+
       {!isLoading && status === 'error' && (
         <StateMessage
           title="We could not load those books"
@@ -239,7 +245,7 @@ function Home() {
                 onClick={loadMoreBooks}
                 disabled={loadingMore}
               >
-                {loadingMore ? 'Loading…' : 'Load More Books'}
+                {loadingMore ? 'Loading…' : 'Load more books'}
               </button>
             </div>
           )}

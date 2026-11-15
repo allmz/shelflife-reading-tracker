@@ -3,12 +3,17 @@ import { createContext, useContext, useLayoutEffect, useState } from 'react';
 const ThemeContext = createContext(null);
 const STORAGE_KEY = 'shelflife-theme';
 
+// A choice the reader made wins. Before they make one, follow the
+// system setting. index.html runs the same check before React loads, so
+// a dark page does not flash light on reload.
 function readTheme() {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'dark' ? 'dark' : 'light';
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
   } catch {
-    return 'light';
+    // Storage blocked: fall through to the system setting.
   }
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function ThemeProvider({ children }) {
