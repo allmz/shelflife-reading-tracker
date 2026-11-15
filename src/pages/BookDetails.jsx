@@ -16,6 +16,7 @@ function BookDetails() {
     ? shelfNames.flatMap((name) => shelves[name]).find((item) => item.id === workId)
     : null;
   const passedBook = location.state?.book || savedBook;
+  const returnTo = location.state?.returnTo || (isManual ? '/shelves' : '/');
 
   const [book, setBook] = useState(
     passedBook || {
@@ -101,8 +102,8 @@ function BookDetails() {
 
   return (
     <section className="details-layout">
-      <button className="back-link" onClick={() => navigate(location.state?.returnTo || '/')}>
-        ← Back to results
+      <button className="back-link" onClick={() => navigate(returnTo)}>
+        ← Back to {returnTo.startsWith('/shelves') ? 'shelves' : 'results'}
       </button>
 
       <div className="details-card">
@@ -136,20 +137,22 @@ function BookDetails() {
               : description}
           </p>
 
-          <div className="shelf-picker">
-            <span>My shelf</span>
-            <div>
-              {shelfNames.map((name) => (
-                <button
-                  key={name}
-                  className={currentShelf === name ? 'selected' : ''}
-                  onClick={() => moveBook(book, name)}
-                >
-                  {name}
-                </button>
-              ))}
+          {(!isManual || passedBook) && (
+            <div className="shelf-picker">
+              <span>My shelf</span>
+              <div>
+                {shelfNames.map((name) => (
+                  <button
+                    key={name}
+                    className={currentShelf === name ? 'selected' : ''}
+                    onClick={() => moveBook(book, name)}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
