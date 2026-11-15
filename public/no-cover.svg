@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 360" role="img" aria-label="Book cover unavailable">
+  <defs>
+    <linearGradient id="paper" x2="0" y2="1">
+      <stop stop-color="#d8a184"/>
+      <stop offset="1" stop-color="#a85443"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="360" fill="url(#paper)"/>
+  <rect x="18" y="18" width="204" height="324" rx="3" fill="none" stroke="#f7e9dc" stroke-opacity=".7"/>
+  <path d="M28 18v324M212 18v324" stroke="#f7e9dc" stroke-opacity=".35"/>
+  <text x="120" y="132" text-anchor="middle" fill="#fff8ef" font-family="Georgia, serif" font-size="29">ShelfLife</text>
+  <path d="M76 165h88M89 176h62" stroke="#f7e9dc" stroke-width="2" stroke-opacity=".7"/>
+  <text x="120" y="225" text-anchor="middle" fill="#fff8ef" font-family="Arial, sans-serif" font-size="15" letter-spacing="2">NO COVER</text>
+</svg>

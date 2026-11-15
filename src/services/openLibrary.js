@@ -52,7 +52,7 @@ export function normalizeBook(book) {
 export function imageFor(book, size = 'M') {
   return book.coverId
     ? `https://covers.openlibrary.org/b/id/${book.coverId}-${size}.jpg`
-    : 'https://placehold.co/240x360/eadfcf/4d4037?text=No+cover';
+    : '/no-cover.svg';
 }
 
 async function getJson(url, signal, errorMessage) {
